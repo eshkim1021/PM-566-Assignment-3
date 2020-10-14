@@ -5,12 +5,15 @@ date: "10/13/2020"
 output: github_document
 ---
 
+## APIs
+
 ```{r, message = FALSE}
 library(tidyverse)
 library(httr)
 library(xml2)
 library(dplyr)
 ```
+
 
 
 ```{r}
@@ -41,7 +44,8 @@ ids <- stringr::str_remove_all(ids, "<Id>|</Id>")
 ```
 
 ```{r}
-publications <- GET(
+#Get all the papers that match IDs extracted
+publication <- GET(
     url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
     query = list( db = "pubmed",
                   id = paste(ids,collapse = ","),
@@ -50,6 +54,49 @@ publications <- GET(
         )
     )
 
-publications <- httr::content(publications)
-publications_txt <- as.character(publications)
+publication <- httr::content(publication)
+publication_txt <- as.character(publication)
+```
+
+The content of the publication was obtained through an API that matched all of the papers with the ids that were previously generated. 
+
+```{r one-string-per-response, eval = TRUE}
+pub_char_list <- xml2::xml_children(publication)
+pub_char_list <- sapply(pub_char_list, as.character)
+```
+
+
+
+```{r}
+titles <- str_extract(pub_char_list, "<ArticleTitle>(\\n|.)+</ArticleTitle>")
+titles <- str_remove_all(titles, "</?[[:alnum:]]+>")
+titles <- str_replace_all(titles,"\\s+"," ")
+
+journal <- str_extract_all(pub_char_list,"<Title>([:alpha:]+ ?){10}</Title>")
+journal <- str_remove_all(journal, "<Title>|</Title>")
+
+date <- str_extract_all(pub_char_list,"<PubDate>(\\n|.)+</PubDate>")
+date <- str_remove_all(date, "<PubDate>|<Year>|</Year>|<Month>|</Month>|<Day>|</Day>|</PubDate>")
+date <-str_remove_all(date,"\n+|<MedlineDate>|</MedlineDate>")
+date <- str_replace_all(date,"\\s+"," ")
+
+
+abstracts <- str_extract(pub_char_list, "<Abstract>(\\n|.)+</Abstract>")
+abstracts <- str_remove_all(abstracts, "</?[[:alnum:]]+>")
+abstracts <- str_replace_all(abstracts, "\\s+"," ")
+
+```
+
+```{r Create Data Frame}
+
+database = data.frame(
+  ID = ids,
+  Title = titles,
+  Journal = journal,
+  Publication_Date= date,
+  Abstract = abstracts
+)
+
+knitr::kable(database)
+
 ```
