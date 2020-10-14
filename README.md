@@ -10,6 +10,8 @@ library(tidyverse)
 library(httr)
 library(xml2)
 library(dplyr)
+library(tidytext)
+library(ggplot2)
 ```
 
 ``` r
@@ -88,6 +90,13 @@ abstracts <- str_extract(pub_char_list, "<Abstract>(\\n|.)+</Abstract>")
 abstracts <- str_remove_all(abstracts, "</?[[:alnum:]]+>")
 abstracts <- str_replace_all(abstracts, "\\s+"," ")
 ```
+
+All of the desired information (Pubmed ID number, Title of Paper, Name
+of Journal, Publication Date, and Abstract) was extracted through APIs
+and regular expressions.
+
+The table below shows the basic information regarding papers that show
+up under the term “sars-cov-2 trial vaccine.”
 
 ``` r
 database = data.frame(
@@ -330,3 +339,207 @@ knitr::kable(database)
 | 32179860 | Don’t rush to deploy COVID-19 vaccines and drugs without sufficient safety guarantees.                                                                                                                                                                                             | character(0)                                                      | 2020 03           | NA                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | 32108352 | Clinical trial analysis of 2019-nCoV therapy registered in China.                                                                                                                                                                                                                  | Journal of medical virology                                       | 2020 06           | So far, there is a lack of effective drugs for the new coronavirus pneumonia. With more and more patients diagnosed, China has carried out more than 100 clinical studies of new coronavirus infection, including antiviral drugs, antimalarial drugs, glucocorticoids, plasma therapy, virus vaccine, and other Western drugs, while Chinese medicine research accounted for half of the studies. Most of the trials were initiated by investigators and the study period would last for 1 to 11 months. The primary endpoints included symptom improvement and virus nucleic acid turning negative, but the optimal endpoint has not been determined. Although the final results of studies will take a long time to complete, the interim research data may provide some help for the current urgent demand for drug treatment. Compared with that of during SARS period in 2003, China has the stronger capability to carry out clinical trials of new drugs in emergency period. © 2020 Wiley Periodicals, Inc.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | 32001631 | New coronavirus threat galvanizes scientists.                                                                                                                                                                                                                                      | character(0)                                                      | 2020 01 31        | NA                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+
+## Text Wrangling
+
+### Question 1:
+
+#### With Stop Words
+
+``` r
+#Loading the Dataset 
+text <- read_csv("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/03_pubmed/pubmed.csv")
+```
+
+    ## Parsed with column specification:
+    ## cols(
+    ##   abstract = col_character(),
+    ##   term = col_character()
+    ## )
+
+The abstracts were tokenized without removing stop words. The tokens
+that appeared most frequently are listed below:
+
+``` r
+#Tokenizing the abstracts without removing stop words 
+text %>% 
+  unnest_tokens(token,abstract) %>% 
+  count(token,sort = TRUE)%>% 
+  top_n(10,n)
+```
+
+    ## # A tibble: 10 x 2
+    ##    token     n
+    ##    <chr> <int>
+    ##  1 the   28126
+    ##  2 of    24760
+    ##  3 and   19993
+    ##  4 in    14653
+    ##  5 to    10920
+    ##  6 a      8245
+    ##  7 with   8038
+    ##  8 covid  7275
+    ##  9 19     7080
+    ## 10 is     5649
+
+A majority of the most common tokens that are found were stop words, as
+expected. The only tokens that were not stop words were “covid” and
+“19.”
+
+The abstracts were then tokenized after removing stop words, and grouped
+by the search term.
+
+#### Search Term: Covid
+
+``` r
+text %>% 
+  filter((term %in% "covid"))%>%
+  unnest_tokens(token,abstract)%>%
+  group_by(term)%>%
+  anti_join(stop_words, by = c("token" = "word"))%>%
+  count(token,sort = TRUE) %>%
+  top_n(5,n)
+```
+
+    ## # A tibble: 5 x 3
+    ## # Groups:   term [1]
+    ##   term  token        n
+    ##   <chr> <chr>    <int>
+    ## 1 covid covid     7275
+    ## 2 covid 19        7035
+    ## 3 covid patients  2293
+    ## 4 covid disease    943
+    ## 5 covid pandemic   800
+
+For the search term “covid”, the five most common tokens were:
+“covid”,“19”,“patients”,“disease,”pandemic". The most common
+tokens were all related to the Covid-19 pandemic that is happening
+currently. After removing the stop words, the tokens are more relevant
+to the search term.
+
+#### Search Term: Prostate Cancer
+
+``` r
+text %>% 
+  filter((term %in% "prostate cancer"))%>%
+  unnest_tokens(token,abstract)%>%
+  group_by(term) %>%
+  anti_join(stop_words, by = c("token" = "word"))%>%
+  count(token,sort = TRUE) %>%
+  top_n(5,n)
+```
+
+    ## # A tibble: 5 x 3
+    ## # Groups:   term [1]
+    ##   term            token         n
+    ##   <chr>           <chr>     <int>
+    ## 1 prostate cancer cancer     3840
+    ## 2 prostate cancer prostate   3832
+    ## 3 prostate cancer patients    934
+    ## 4 prostate cancer treatment   926
+    ## 5 prostate cancer disease     652
+
+For the search term “prostate cancer”, the five most common tokens were:
+“cancer”,“prostate”,“patients”,“treatment”,“disease”. All of these words
+were related to prostate cancer and the treament of the disease. After
+removing the stop words, the tokens were more related to prostate
+cancer.
+
+#### Search Term: Preeclampsia
+
+``` r
+text %>% 
+  filter((term %in% "preeclampsia"))%>%
+  unnest_tokens(token,abstract)%>%
+  group_by(term)%>%
+  anti_join(stop_words, by = c("token" = "word"))%>%
+  count(token,sort = TRUE) %>%
+  top_n(5,n)
+```
+
+    ## # A tibble: 5 x 3
+    ## # Groups:   term [1]
+    ##   term         token            n
+    ##   <chr>        <chr>        <int>
+    ## 1 preeclampsia pre           2038
+    ## 2 preeclampsia eclampsia     2005
+    ## 3 preeclampsia preeclampsia  1863
+    ## 4 preeclampsia women         1196
+    ## 5 preeclampsia pregnancy      969
+
+For the search term “preeclampsia,” the five most common tokens were:
+“pre”,“eclampsia”,“preeclampsia”,“women”,“pregnancy”. The most common
+tokens included the name of the disease. Preeclampsia is a conditions
+that occurs during pregnancy in women, which corresponds to both “women”
+and “pregnancy” being in the most common tokens. After removing the stop
+words, the tokens were more related to preeclampsia.
+
+#### Search Term:Cystic Fibrosis
+
+``` r
+text %>% 
+  filter((term %in% "cystic fibrosis"))%>%
+  unnest_tokens(token,abstract)%>%
+  group_by(term)%>%
+  anti_join(stop_words, by = c("token" = "word"))%>%
+  count(token,sort = TRUE)%>%
+  top_n(5,n)
+```
+
+    ## # A tibble: 5 x 3
+    ## # Groups:   term [1]
+    ##   term            token        n
+    ##   <chr>           <chr>    <int>
+    ## 1 cystic fibrosis fibrosis   867
+    ## 2 cystic fibrosis cystic     862
+    ## 3 cystic fibrosis cf         625
+    ## 4 cystic fibrosis patients   586
+    ## 5 cystic fibrosis disease    400
+
+For the search term “cystic fibrosis,” the five most common tokens were:
+“fibrosis”,“cystic”,“cf”,“patients”,“disease”. The most common stop
+words included the name of the disease itself, and referenced the
+patients that had the diseae. After removing the stop words, the tokens
+were more related to cystic fibrosis
+
+#### Search Term: Meningitis
+
+``` r
+text %>% 
+  filter((term %in% "meningitis"))%>%
+  unnest_tokens(token,abstract)%>%
+  group_by(term)%>%
+  anti_join(stop_words, by = c("token" = "word"))%>%
+  count(token,sort = TRUE)%>%
+  top_n(5,n)
+```
+
+    ## # A tibble: 5 x 3
+    ## # Groups:   term [1]
+    ##   term       token          n
+    ##   <chr>      <chr>      <int>
+    ## 1 meningitis patients     446
+    ## 2 meningitis meningitis   429
+    ## 3 meningitis meningeal    219
+    ## 4 meningitis csf          206
+    ## 5 meningitis clinical     187
+
+For the search term “meningitis,” the five most common tokens were:
+“patients”,“meningitis”,“meningeal”, csf“,”clinical." The most common
+tokens include the word “patients” and things related to meningitis, as
+the excess buildup of csf (cerebral spinal fluid) lead to meningitis.
+After removing the stop words, the tokens were more related to
+meningitis.
+
+### Question 2:
+
+``` r
+text %>% 
+  unnest_ngrams(ngram,abstract,n=2) %>%
+  count(ngram,sort = TRUE) %>%
+  top_n(10,n) %>%
+  ggplot(aes(n,fct_reorder(ngram,n)))+
+  geom_col()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->

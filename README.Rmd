@@ -12,6 +12,8 @@ library(tidyverse)
 library(httr)
 library(xml2)
 library(dplyr)
+library(tidytext)
+library(ggplot2)
 ```
 
 
@@ -87,6 +89,11 @@ abstracts <- str_replace_all(abstracts, "\\s+"," ")
 
 ```
 
+
+All of the desired information (Pubmed ID number, Title of Paper, Name of Journal, Publication Date, and Abstract) was extracted through APIs and regular expressions. 
+
+The table below shows the basic information regarding papers that show up under the term "sars-cov-2 trial vaccine."
+
 ```{r Create Data Frame}
 
 database = data.frame(
@@ -99,4 +106,113 @@ database = data.frame(
 
 knitr::kable(database)
 
+```
+
+## Text Wrangling 
+
+### Question 1:
+
+#### With Stop Words
+
+```{r}
+#Loading the Dataset 
+text <- read_csv("https://raw.githubusercontent.com/USCbiostats/data-science-data/master/03_pubmed/pubmed.csv")
+```
+
+The abstracts were tokenized without removing stop words. The tokens that appeared most frequently are listed below:
+
+```{r}
+#Tokenizing the abstracts without removing stop words 
+text %>% 
+  unnest_tokens(token,abstract) %>% 
+  count(token,sort = TRUE)%>% 
+  top_n(10,n)
+
+```
+
+A majority of the most common tokens that are found were stop words, as expected. The only tokens that were not stop words were "covid" and "19." 
+
+The abstracts were then tokenized after removing stop words, and grouped by the search term. 
+
+#### Search Term: Covid
+
+```{r}
+text %>% 
+  filter((term %in% "covid"))%>%
+  unnest_tokens(token,abstract)%>%
+  group_by(term)%>%
+  anti_join(stop_words, by = c("token" = "word"))%>%
+  count(token,sort = TRUE) %>%
+  top_n(5,n)
+  
+```
+
+For the search term "covid", the five most common tokens were: "covid","19","patients","disease,"pandemic". The most common tokens were all related to the Covid-19 pandemic that is happening currently. After removing the stop words, the tokens are more relevant to the search term. 
+
+#### Search Term: Prostate Cancer
+
+```{r}
+text %>% 
+  filter((term %in% "prostate cancer"))%>%
+  unnest_tokens(token,abstract)%>%
+  group_by(term) %>%
+  anti_join(stop_words, by = c("token" = "word"))%>%
+  count(token,sort = TRUE) %>%
+  top_n(5,n)
+````
+
+For the search term "prostate cancer", the five most common tokens were: "cancer","prostate","patients","treatment","disease". All of these words were related to prostate cancer and the treament of the disease. After removing the stop words, the tokens were more related to prostate cancer. 
+
+#### Search Term: Preeclampsia
+
+```{r}
+text %>% 
+  filter((term %in% "preeclampsia"))%>%
+  unnest_tokens(token,abstract)%>%
+  group_by(term)%>%
+  anti_join(stop_words, by = c("token" = "word"))%>%
+  count(token,sort = TRUE) %>%
+  top_n(5,n)
+````
+
+For the search term "preeclampsia," the five most common tokens were: "pre","eclampsia","preeclampsia","women","pregnancy". The most common tokens included the name of the disease. Preeclampsia is a conditions that occurs during pregnancy in women, which corresponds to both "women" and "pregnancy" being in the most common tokens. After removing the stop words, the tokens were more related to preeclampsia.
+
+#### Search Term:Cystic Fibrosis
+
+```{r}
+text %>% 
+  filter((term %in% "cystic fibrosis"))%>%
+  unnest_tokens(token,abstract)%>%
+  group_by(term)%>%
+  anti_join(stop_words, by = c("token" = "word"))%>%
+  count(token,sort = TRUE)%>%
+  top_n(5,n)
+```
+
+For the search term "cystic fibrosis," the five most common tokens were: "fibrosis","cystic","cf","patients","disease". The most common stop words included the name of the disease itself, and referenced the patients that had the diseae. After removing the stop words, the tokens were more related to cystic fibrosis 
+
+#### Search Term: Meningitis 
+
+```{r}
+text %>% 
+  filter((term %in% "meningitis"))%>%
+  unnest_tokens(token,abstract)%>%
+  group_by(term)%>%
+  anti_join(stop_words, by = c("token" = "word"))%>%
+  count(token,sort = TRUE)%>%
+  top_n(5,n)
+```
+
+For the search term "meningitis," the five most common tokens were: "patients","meningitis","meningeal", csf","clinical." The most common tokens include the word "patients" and things related to meningitis, as the excess buildup of csf (cerebral spinal fluid) lead to meningitis. After removing the stop words, the tokens were more related to meningitis. 
+
+### Question 2: 
+
+```{r}
+text %>% 
+  unnest_ngrams(ngram,abstract,n=2) %>%
+  count(ngram,sort = TRUE) %>%
+  top_n(10,n) %>%
+  ggplot(aes(n,fct_reorder(ngram,n)))+
+  geom_col()
+  
 ```
