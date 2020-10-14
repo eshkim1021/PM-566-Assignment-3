@@ -543,3 +543,74 @@ text %>%
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+Even though alot of the bigrams include stop words, there are some
+noticable data including the bigram “covid-19” is the most common
+bigram, alongside with “prostate cancer”, and “pre eclampsia”. This
+suggests that the previously named diseases are the most common diseases
+that were found through these search terms
+
+### Question 3:
+
+This table shows the TF-IDF values for each word-search term
+combination.
+
+``` r
+#Calculate the TF-IDF 
+text%>% 
+  unnest_tokens(token,abstract) %>% 
+  count(token,term) %>% 
+  bind_tf_idf(token,term,n)%>% 
+  arrange(desc(tf_idf))
+```
+
+    ## # A tibble: 39,240 x 6
+    ##    token        term                n      tf   idf  tf_idf
+    ##    <chr>        <chr>           <int>   <dbl> <dbl>   <dbl>
+    ##  1 covid        covid            7275 0.0371  1.61  0.0597 
+    ##  2 prostate     prostate cancer  3832 0.0312  1.61  0.0502 
+    ##  3 eclampsia    preeclampsia     2005 0.0143  1.61  0.0230 
+    ##  4 preeclampsia preeclampsia     1863 0.0133  1.61  0.0214 
+    ##  5 meningitis   meningitis        429 0.00919 1.61  0.0148 
+    ##  6 cf           cystic fibrosis   625 0.0127  0.916 0.0117 
+    ##  7 fibrosis     cystic fibrosis   867 0.0176  0.511 0.00901
+    ##  8 cystic       cystic fibrosis   862 0.0175  0.511 0.00896
+    ##  9 meningeal    meningitis        219 0.00469 1.61  0.00755
+    ## 10 pandemic     covid             800 0.00408 1.61  0.00657
+    ## # ... with 39,230 more rows
+
+The 5 tokens with the highest TF-IDF value for the search term “covid”
+are: “covid”,“pandemic”,“cornovairus”,“sars”,“cov”. These words vary
+significantly from just calculating the tokens with the highest
+frequency. This indicates that the words “coronavirus”,“sars”, and “cov”
+appear lot of times in a couple of documents.
+
+The 5 tokens with the highest TF-IDF value for the search term “prostate
+cancer” are: “prostate”,“androgen”,“psa”,“prostatectomy”,“castration.”
+These words also vary significnatly from just calculating the tokens
+with the highest frequency. This tokens include words that are highly
+related to prostate cancer, indicating that these words appear in only a
+couple of documents that are related to prostate cancer.
+
+The 5 tokens with the highest TF-IDF value for the search term
+“preeclampsia” are: “eclampsia”
+,“preeclampsia”,“pregnancy”,“maternal”,“gestational”. The
+words are similar to just calculating the tokens with the highest
+frequncy. However, the words “maternal” and “gestational” have high
+TF-IDF value, meaning that even though they may not be the most
+frequent, they appear only in a couple of documents presumably related
+to preeclampsia.
+
+The 5 tokens with the highest TF-IDF value for the search term “cystic
+fibrosis” are: “cf”,“fibrosis”,“cystic”,“ctfr”,“sweat”. These words are
+also similar to just calculating the tokens with the highest frequncy.
+However, the words “ctfr” and “sweat” have a high TF-IDF value, meaning
+that they appear in high frequency in only a couple of documents
+
+The 5 tokens with the highest TF-IDF value for the search term
+“meningitis” are:
+“meningitis”,“pachymeningitis”,“csf”,“meninges”,“leptomeningeal”.
+These words vary significantly from just calculating the tokens with hte
+highset frequency. This indicates that these words appear a lot in a
+couple of documents that are include specific informations and terms
+related to meningitis.
